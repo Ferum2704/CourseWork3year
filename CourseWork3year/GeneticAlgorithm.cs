@@ -28,6 +28,53 @@ public class GeneticAlgorithm
         _numberOfIterations = numberOfIterations;
     }
 
+    // додаткова версія для повернення одного значення
+    public int ExecuteObj(bool useIterationsExitApproach)
+    {
+        var population = GenerateInitialChromosomos();
+        List<int> chromosomesObjFuncValues = new();
+        int theBestObjFuncValue = 0;
+        int[] theBestChromosome = new int[_numberOfGenes];
+
+        if (useIterationsExitApproach)
+        {
+            for (int i = 0; i < _numberOfIterations; i++)
+            {
+                ExecuteMainPart(ref population, ref chromosomesObjFuncValues);
+            }
+
+            theBestObjFuncValue = chromosomesObjFuncValues.Min();
+            var theBestChromosomeIndex = chromosomesObjFuncValues.FindIndex(x => x == theBestObjFuncValue);
+            theBestChromosome = population[theBestChromosomeIndex];
+        }
+        else
+        {
+            int previousTheBestObjFuncValue = 0;
+            int numberOfConsecutiveSameObjFuncValue = 0;
+            while (numberOfConsecutiveSameObjFuncValue <= _maxNumberOfConsecutiveSameObjFuncValue)
+            {
+                ExecuteMainPart(ref population, ref chromosomesObjFuncValues);
+
+                theBestObjFuncValue = chromosomesObjFuncValues.Min();
+
+                if (theBestObjFuncValue == previousTheBestObjFuncValue)
+                {
+                    numberOfConsecutiveSameObjFuncValue++;
+                }
+                else
+                {
+                    numberOfConsecutiveSameObjFuncValue = 0;
+                }
+
+                previousTheBestObjFuncValue = theBestObjFuncValue;
+                var theBestChromosomeIndex = chromosomesObjFuncValues.FindIndex(x => x == theBestObjFuncValue);
+                theBestChromosome = population[theBestChromosomeIndex];
+            }
+        }
+
+        return theBestObjFuncValue;
+    }
+
     public (int objFuncValue, int[] distribution) Execute(bool useIterationsExitApproach)
     {
         var population = GenerateInitialChromosomos();

@@ -1,12 +1,19 @@
 ﻿using CourseWork3year;
-using System;
-using System.Text;
-
 
 TimeMatrix matrix = new TimeMatrix(8);
 matrix.FillWithRandomValues(50, 30);
 matrix.Print();
-ObjectiveFunction.SetData(matrix.Data);
+
+
+List<int> sizes = new List<int>() { 20};
+
+AlgorithmsComparator comparator = new AlgorithmsComparator(sizes, 50, 30);
+
+comparator.ShowParametersInfluence();
+
+
+
+/*ObjectiveFunction.SetData(matrix.Data);
 
 GeneticAlgorithm algorithm = new GeneticAlgorithm(8, matrix.NumberOfTasks, 0.2, 5, 20);
 
@@ -108,5 +115,5 @@ switch (choice)
     default:
         Console.WriteLine("Некоректний вибір. Перезапустіть програму");
         break;
-}
+}*/
 

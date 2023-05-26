@@ -50,6 +50,6 @@ public class TimeMatrix
             }
             Console.WriteLine();
         }
-        Console.WriteLine("\n\n\n");
+        Console.WriteLine("\n\n");
     }
 }
