@@ -48,8 +48,8 @@ namespace CourseWork3year
 
                     matrix.FillWithRandomValues(_meanValue, _semiInterval);
 
-                    tripleObjectiveFunction += TripleGreedy.GetObjectiveFunction(matrix.Data);
-                    avarageObjectiveFunction += TripleGreedy.GetAvarageObjectiveFunction(matrix.Data);
+                    tripleObjectiveFunction += TripleGreedy.Execute(matrix.Data).Item1;
+                    avarageObjectiveFunction += TripleGreedy.Execute(matrix.Data).Item1;
                     geneticObjectiveFunction += geneticAlgorithm.ExecuteObj(true);
                 }
 

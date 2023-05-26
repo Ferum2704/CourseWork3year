@@ -1,16 +1,34 @@
-﻿using static OfficeOpenXml.ExcelErrorValue;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace CourseWork3year
 {
-    public static class TripleGreedy
+    internal static class TripleGreedy
     {
-        public static int GetObjectiveFunction(int[,] matrix)
+        public static (int objFuncValue, List<int> distribution) Execute(int[,] matrix)
         {
-            return Math.Min(GetAvarageObjectiveFunction(matrix), Math.Min(GetMinimumObjectiveFunction(matrix), GetMaximumObjectiveFunction(matrix)));
+            (int avarageFunction, List<int> avarageDistribution) = GetAvarageObjectiveFunction(matrix);
+            (int minFunction, List<int> minDistribution) = GetMinimumObjectiveFunction(matrix);
+            (int maxFunction, List<int> maxDistribution) = GetMaximumObjectiveFunction(matrix);
+
+            if (avarageFunction <= minFunction && avarageFunction <= maxFunction) 
+            {
+                return (avarageFunction, avarageDistribution);
+            }
+            else if (minFunction <= avarageFunction && minFunction <= maxFunction)
+            {
+                return (minFunction, minDistribution);
+            }
+            else
+            {
+                return (maxFunction, maxDistribution);
+            }
         }
 
-
-        public static int GetAvarageObjectiveFunction(int[,] oldMatrix)
+        public static (int, List<int>) GetAvarageObjectiveFunction(int[,] oldMatrix)
         {
             int[,] matrix = oldMatrix.Clone() as int[,];
 
@@ -58,10 +76,10 @@ namespace CourseWork3year
                 dimension--;
             }
 
-            return nearestValues.Max() - nearestValues.Min();
+            return (nearestValues.Max() - nearestValues.Min(), nearestValues);
         }
 
-        private static int GetMinimumObjectiveFunction(int[,] oldMatrix)
+        private static (int, List<int>) GetMinimumObjectiveFunction(int[,] oldMatrix)
         {
             int[,] matrix = oldMatrix.Clone() as int[,];
 
@@ -94,10 +112,10 @@ namespace CourseWork3year
                 dimension--;
             }
 
-            return minimumValues.Max() - minimumValues.Min();
+            return (minimumValues.Max() - minimumValues.Min(), minimumValues);
         }
 
-        private static int GetMaximumObjectiveFunction(int[,] oldMatrix)
+        private static (int, List<int>) GetMaximumObjectiveFunction(int[,] oldMatrix)
         {
             int[,] matrix = oldMatrix.Clone() as int[,];
 
@@ -130,7 +148,7 @@ namespace CourseWork3year
                 dimension--;
             }
 
-            return maximumValues.Max() - maximumValues.Min();
+            return (maximumValues.Max() - maximumValues.Min(), maximumValues);
         }
 
         // Create new matrix without row and column of the maximum value

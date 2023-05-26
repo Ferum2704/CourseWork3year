@@ -5,7 +5,7 @@ matrix.FillWithRandomValues(50, 30);
 matrix.Print();
 
 
-List<int> sizes = new List<int>() { 20};
+List<int> sizes = new List<int>() { 20, 50, 70, 100, 150, 230};
 
 AlgorithmsComparator comparator = new AlgorithmsComparator(sizes, 50, 30);
 
