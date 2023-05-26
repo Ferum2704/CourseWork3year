@@ -266,7 +266,7 @@ public class GeneticAlgorithm
         return child;
     }
 
-    public void MutateChild(int[] child)
+    private void MutateChild(int[] child)
     {
         var rand = new Random();
 

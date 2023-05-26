@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,10 @@ namespace CourseWork3year;
 public static class Experiment3
 {
     private static List<TimeMatrix> timeMatrices = new();
+    private static int[] matricesSizes;
+    private static int meanValue;
+    private static int semiInterval;
+    private static bool isGenerated = false;
 
     public static void ReadFromFile(string fileName)
     {
@@ -91,19 +96,87 @@ public static class Experiment3
 
     public static void Generate()
     {
+        isGenerated = true;
         Console.Write("Введіть перелік значень розмірностей квадратних матриць розділених пробілами:");
-        int[] dimensions = Console.ReadLine()?.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(x => int.Parse(x)).ToArray();
+        matricesSizes = Console.ReadLine()?.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(x => int.Parse(x)).ToArray();
         Console.Write("Введіть значення математичного сподівання для елементів матриці:");
-        int meanValue = int.Parse(Console.ReadLine() ?? "0");
+        meanValue = int.Parse(Console.ReadLine() ?? "0");
         Console.Write("Введіть значення напівінтервалу для генерації елементів матриці:");
-        int semiInterval = int.Parse(Console.ReadLine() ?? "0");
+        semiInterval = int.Parse(Console.ReadLine() ?? "0");
+    }
 
-        foreach (var dimension in dimensions)
+    public static void Execute()
+    {
+        if (isGenerated)
         {
-            TimeMatrix matrix = new TimeMatrix(dimension);
-            matrix.FillWithRandomValues(meanValue, semiInterval);
-            timeMatrices.Add(matrix);
+            ExecuteWithRuns();
         }
+        else
+        {
+            ExecuteWithoutRuns();
+        }
+        ExcelWriter.SaveToFile();
+    }
+
+    private static void ExecuteWithRuns()
+    {
+        const int RUNS = 20;
+
+        List<double> tripleGreedyValues = new List<double>();
+        List<double> avgGreedyValues = new List<double>();
+        List<double> geneticValues = new List<double>();
+
+        foreach (int size in matricesSizes)
+        {
+            double tripleObjectiveFunction = 0;
+            double avarageObjectiveFunction = 0;
+            double geneticObjectiveFunction = 0;
+
+            for (int i = 0; i < RUNS; i++)
+            {
+                TimeMatrix matrix = new TimeMatrix(size);
+
+                GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(8, size, 0.2, 5, 20);
+                ObjectiveFunction.SetData(matrix.Data);
+
+                matrix.FillWithRandomValues(meanValue, semiInterval);
+
+                tripleObjectiveFunction += TripleGreedy.Execute(matrix.Data).Item1;
+                avarageObjectiveFunction += TripleGreedy.Execute(matrix.Data).Item1;
+                geneticObjectiveFunction += geneticAlgorithm.ExecuteObj(true);
+            }
+
+            tripleGreedyValues.Add(tripleObjectiveFunction / RUNS);
+            avgGreedyValues.Add(avarageObjectiveFunction / RUNS);
+            geneticValues.Add(geneticObjectiveFunction / RUNS);
+        }
+
+        ExcelWriter.OutputSizeToPrecisionComparison(tripleGreedyValues, avgGreedyValues, geneticValues, matricesSizes.ToList(), "Розмір/Точність");
+    }
+
+    private static void ExecuteWithoutRuns()
+    {
+        List<double> tripleGreedyValues = new List<double>();
+        List<double> avgGreedyValues = new List<double>();
+        List<double> geneticValues = new List<double>();
+
+        foreach (var matrix in timeMatrices)
+        {
+            double tripleObjectiveFunction = 0;
+            double avarageObjectiveFunction = 0;
+            double geneticObjectiveFunction = 0;
+
+            GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(matrix.NumberOfPerformers, matrix.NumberOfPerformers, 0.2, 5, 20);
+            ObjectiveFunction.SetData(matrix.Data);
+
+            matrix.FillWithRandomValues(meanValue, semiInterval);
+
+            tripleObjectiveFunction += TripleGreedy.Execute(matrix.Data).Item1;
+            avarageObjectiveFunction += TripleGreedy.Execute(matrix.Data).Item1;
+            geneticObjectiveFunction += geneticAlgorithm.ExecuteObj(true);
+        }
+
+        ExcelWriter.OutputSizeToPrecisionComparison(tripleGreedyValues, avgGreedyValues, geneticValues, matricesSizes.ToList(), "Розмір/Точність");
     }
 
     public static void FillFileWithData()

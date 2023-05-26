@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +11,10 @@ namespace CourseWork3year;
 public static class Experiment2
 {
     private static List<TimeMatrix> timeMatrices = new();
+    private static int[] matricesSizes;
+    private static int meanValue;
+    private static int semiInterval;
+    private static bool isGenerated = false;
 
     public static void ReadFromFile(string fileName)
     {
@@ -91,19 +97,123 @@ public static class Experiment2
 
     public static void Generate()
     {
+        isGenerated = true;
         Console.Write("Введіть перелік значень розмірностей квадратних матриць розділених пробілами:");
-        int[] dimensions = Console.ReadLine()?.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(x => int.Parse(x)).ToArray();
+        matricesSizes = Console.ReadLine()?.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(x => int.Parse(x)).ToArray();
         Console.Write("Введіть значення математичного сподівання для елементів матриці:");
-        int meanValue = int.Parse(Console.ReadLine() ?? "0");
+        meanValue = int.Parse(Console.ReadLine() ?? "0");
         Console.Write("Введіть значення напівінтервалу для генерації елементів матриці:");
-        int semiInterval = int.Parse(Console.ReadLine() ?? "0");
+        semiInterval = int.Parse(Console.ReadLine() ?? "0");
+    }
 
-        foreach (var dimension in dimensions)
+    public static void Execute()
+    {
+        if (isGenerated)
         {
-            TimeMatrix matrix = new TimeMatrix(dimension);
-            matrix.FillWithRandomValues(meanValue, semiInterval);
-            timeMatrices.Add(matrix);
+            ExecuteWithRuns();
         }
+        else
+        {
+            ExecuteWithoutRuns();
+        }
+        ExcelWriter.SaveToFile();
+    }
+
+    private static void ExecuteWithRuns()
+    {
+        const int RUNS = 20;
+
+        Stopwatch stopWatchTripleAlgorithm = new Stopwatch();
+        Stopwatch stopWatchAvarageAlgorithm = new Stopwatch();
+        Stopwatch stopWatchGeneticAlgorithm = new Stopwatch();
+
+        List<long> intervalsTripleGreedy = new List<long>();
+        List<long> intervalsAvarageGreedy = new List<long>();
+        List<long> intervalsGeneticAlgorithm = new List<long>();
+
+        int tripleObjectiveFunction = 0;
+        int avarageObjectiveFunction = 0;
+        int geneticObjectiveFunction = 0;
+
+        foreach (int size in matricesSizes)
+        {
+            for (int i = 0; i < RUNS; i++)
+            {
+                TimeMatrix matrix = new TimeMatrix(size);
+                matrix.FillWithRandomValues(meanValue, semiInterval);
+
+                stopWatchTripleAlgorithm.Start();
+                (tripleObjectiveFunction, _) = TripleGreedy.Execute(matrix.Data);
+                stopWatchTripleAlgorithm.Stop();
+
+                stopWatchAvarageAlgorithm.Start();
+                (avarageObjectiveFunction, _) = TripleGreedy.GetAvarageObjectiveFunction(matrix.Data);
+                stopWatchAvarageAlgorithm.Stop();
+
+                GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(8, size, 0.2, 5, 20);
+
+                ObjectiveFunction.SetData(matrix.Data);
+
+                stopWatchGeneticAlgorithm.Start();
+                geneticObjectiveFunction = geneticAlgorithm.ExecuteObj(true);
+                stopWatchGeneticAlgorithm.Stop();
+
+            }
+
+            intervalsTripleGreedy.Add(stopWatchTripleAlgorithm.ElapsedMilliseconds / RUNS);
+            intervalsAvarageGreedy.Add(stopWatchAvarageAlgorithm.ElapsedMilliseconds / RUNS);
+            intervalsGeneticAlgorithm.Add(stopWatchGeneticAlgorithm.ElapsedMilliseconds / RUNS);
+
+            stopWatchTripleAlgorithm.Reset();
+            stopWatchAvarageAlgorithm.Reset();
+            stopWatchGeneticAlgorithm.Reset();
+        }
+
+        ExcelWriter.OutputSizeToTimeComparison(intervalsTripleGreedy, intervalsAvarageGreedy, intervalsGeneticAlgorithm, matricesSizes.ToList(), "Розмір/Час");
+    }
+
+    private static void ExecuteWithoutRuns()
+    {
+        Stopwatch stopWatchTripleAlgorithm = new Stopwatch();
+        Stopwatch stopWatchAvarageAlgorithm = new Stopwatch();
+        Stopwatch stopWatchGeneticAlgorithm = new Stopwatch();
+
+        List<long> intervalsTripleGreedy = new List<long>();
+        List<long> intervalsAvarageGreedy = new List<long>();
+        List<long> intervalsGeneticAlgorithm = new List<long>();
+
+        int tripleObjectiveFunction = 0;
+        int avarageObjectiveFunction = 0;
+        int geneticObjectiveFunction = 0;
+
+        foreach (var matrix in timeMatrices)
+        {
+            stopWatchTripleAlgorithm.Start();
+            (tripleObjectiveFunction, _) = TripleGreedy.Execute(matrix.Data);
+            stopWatchTripleAlgorithm.Stop();
+
+            stopWatchAvarageAlgorithm.Start();
+            (avarageObjectiveFunction, _) = TripleGreedy.GetAvarageObjectiveFunction(matrix.Data);
+            stopWatchAvarageAlgorithm.Stop();
+
+            GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(matrix.NumberOfPerformers, matrix.NumberOfPerformers, 0.2, 5, 20);
+
+            ObjectiveFunction.SetData(matrix.Data);
+
+            stopWatchGeneticAlgorithm.Start();
+            geneticObjectiveFunction = geneticAlgorithm.ExecuteObj(true);
+            stopWatchGeneticAlgorithm.Stop();
+
+            intervalsTripleGreedy.Add(stopWatchTripleAlgorithm.ElapsedMilliseconds);
+            intervalsAvarageGreedy.Add(stopWatchAvarageAlgorithm.ElapsedMilliseconds);
+            intervalsGeneticAlgorithm.Add(stopWatchGeneticAlgorithm.ElapsedMilliseconds);
+
+            stopWatchTripleAlgorithm.Reset();
+            stopWatchAvarageAlgorithm.Reset();
+            stopWatchGeneticAlgorithm.Reset();
+        }
+
+        ExcelWriter.OutputSizeToTimeComparison(intervalsTripleGreedy, intervalsAvarageGreedy, intervalsGeneticAlgorithm, matricesSizes.ToList(), "Розмір/Час");
     }
 
     public static void FillFileWithData()

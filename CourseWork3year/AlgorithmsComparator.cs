@@ -83,11 +83,11 @@ namespace CourseWork3year
                     matrix.FillWithRandomValues(_meanValue, _semiInterval);
 
                     stopWatchTripleAlgorithm.Start();
-                    tripleObjectiveFunction = TripleGreedy.GetObjectiveFunction(matrix.Data);
-                    stopWatchTripleAlgorithm.Stop();
+                    //tripleObjectiveFunction = TripleGreedy.GetObjectiveFunction(matrix.Data);
+                    //stopWatchTripleAlgorithm.Stop();
 
-                    stopWatchAvarageAlgorithm.Start();
-                    avarageObjectiveFunction = TripleGreedy.GetAvarageObjectiveFunction(matrix.Data);
+                    //stopWatchAvarageAlgorithm.Start();
+                    //avarageObjectiveFunction = TripleGreedy.GetAvarageObjectiveFunction(matrix.Data);
                     stopWatchAvarageAlgorithm.Stop();
 
                     GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(8, size, 0.2, 5, 20);
