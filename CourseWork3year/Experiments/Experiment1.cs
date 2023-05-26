@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CourseWork3year;
+﻿namespace CourseWork3year.Experiments;
 
 public static class Experiment1
 {
@@ -15,7 +9,7 @@ public static class Experiment1
 
     public static void ReadFromFile(string fileName)
     {
-        string[] allParameters = File.ReadAllLines($"../../../{fileName}");
+        string[] allParameters = File.ReadAllLines($"../../../Experiments/Data/{fileName}");
 
         matrixSize = int.Parse(allParameters[0]);
         meanValues = allParameters[1].Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(x => int.Parse(x)).ToArray();
@@ -92,9 +86,9 @@ public static class Experiment1
 
     public static void PrintResults()
     {
-        File.WriteAllText($"../../../experiment1Results.txt", string.Empty);
+        File.WriteAllText($"../../../Experiments/Data/experiment1Results.txt", string.Empty);
 
-        using (StreamWriter writer = new StreamWriter($"../../../experiment1results.txt"))
+        using (StreamWriter writer = new StreamWriter($"../../../Experiments/Data/experiment1results.txt"))
         {
             writer.WriteLine("\t\tGenetic Algorithm\t\tTripleGreedy Algorithm");
             foreach (var result in results)

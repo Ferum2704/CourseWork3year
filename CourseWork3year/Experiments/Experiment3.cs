@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace CourseWork3year.Experiments;
 
-namespace CourseWork3year;
-
-public static class Experiment2
+public static class Experiment3
 {
     private static List<TimeMatrix> timeMatrices = new();
     private static int[] matricesSizes;
@@ -18,7 +10,7 @@ public static class Experiment2
 
     public static void ReadFromFile(string fileName)
     {
-        string[] lines = File.ReadAllLines($"../../../{fileName}");
+        string[] lines = File.ReadAllLines($"../../../Experiments/Data/{fileName}");
 
         // Індекс для відстеження поточної матриці
         int currentIndex = 0;
@@ -123,97 +115,61 @@ public static class Experiment2
     {
         const int RUNS = 20;
 
-        Stopwatch stopWatchTripleAlgorithm = new Stopwatch();
-        Stopwatch stopWatchAvarageAlgorithm = new Stopwatch();
-        Stopwatch stopWatchGeneticAlgorithm = new Stopwatch();
-
-        List<long> intervalsTripleGreedy = new List<long>();
-        List<long> intervalsAvarageGreedy = new List<long>();
-        List<long> intervalsGeneticAlgorithm = new List<long>();
-
-        int tripleObjectiveFunction = 0;
-        int avarageObjectiveFunction = 0;
-        int geneticObjectiveFunction = 0;
+        List<double> tripleGreedyValues = new List<double>();
+        List<double> avgGreedyValues = new List<double>();
+        List<double> geneticValues = new List<double>();
 
         foreach (int size in matricesSizes)
         {
+            double tripleObjectiveFunction = 0;
+            double avarageObjectiveFunction = 0;
+            double geneticObjectiveFunction = 0;
+
             for (int i = 0; i < RUNS; i++)
             {
                 TimeMatrix matrix = new TimeMatrix(size);
-                matrix.FillWithRandomValues(meanValue, semiInterval);
 
-                stopWatchTripleAlgorithm.Start();
-                (tripleObjectiveFunction, _) = TripleGreedy.Execute(matrix.Data);
-                stopWatchTripleAlgorithm.Stop();
-
-                stopWatchAvarageAlgorithm.Start();
-                (avarageObjectiveFunction, _) = TripleGreedy.GetAvarageObjectiveFunction(matrix.Data);
-                stopWatchAvarageAlgorithm.Stop();
-
-                GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(8, size, 0.2, 5, 20);
-
+                GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(size, size, 0.2, 5, 20);
                 ObjectiveFunction.SetData(matrix.Data);
 
-                stopWatchGeneticAlgorithm.Start();
-                geneticObjectiveFunction = geneticAlgorithm.ExecuteObj(true);
-                stopWatchGeneticAlgorithm.Stop();
+                matrix.FillWithRandomValues(meanValue, semiInterval);
 
+                tripleObjectiveFunction += TripleGreedy.Execute(matrix.Data).Item1;
+                avarageObjectiveFunction += TripleGreedy.Execute(matrix.Data).Item1;
+                geneticObjectiveFunction += geneticAlgorithm.Execute(true).objFuncValue;
             }
 
-            intervalsTripleGreedy.Add(stopWatchTripleAlgorithm.ElapsedMilliseconds / RUNS);
-            intervalsAvarageGreedy.Add(stopWatchAvarageAlgorithm.ElapsedMilliseconds / RUNS);
-            intervalsGeneticAlgorithm.Add(stopWatchGeneticAlgorithm.ElapsedMilliseconds / RUNS);
-
-            stopWatchTripleAlgorithm.Reset();
-            stopWatchAvarageAlgorithm.Reset();
-            stopWatchGeneticAlgorithm.Reset();
+            tripleGreedyValues.Add(tripleObjectiveFunction / RUNS);
+            avgGreedyValues.Add(avarageObjectiveFunction / RUNS);
+            geneticValues.Add(geneticObjectiveFunction / RUNS);
         }
 
-        ExcelWriter.OutputSizeToTimeComparison(intervalsTripleGreedy, intervalsAvarageGreedy, intervalsGeneticAlgorithm, matricesSizes.ToList(), "Розмір/Час");
+        ExcelWriter.OutputSizeToPrecisionComparison(tripleGreedyValues, avgGreedyValues, geneticValues, matricesSizes.ToList(), "Розмір/Точність");
     }
 
     private static void ExecuteWithoutRuns()
     {
-        Stopwatch stopWatchTripleAlgorithm = new Stopwatch();
-        Stopwatch stopWatchAvarageAlgorithm = new Stopwatch();
-        Stopwatch stopWatchGeneticAlgorithm = new Stopwatch();
-
-        List<long> intervalsTripleGreedy = new List<long>();
-        List<long> intervalsAvarageGreedy = new List<long>();
-        List<long> intervalsGeneticAlgorithm = new List<long>();
-
-        int tripleObjectiveFunction = 0;
-        int avarageObjectiveFunction = 0;
-        int geneticObjectiveFunction = 0;
+        List<double> tripleGreedyValues = new List<double>();
+        List<double> avgGreedyValues = new List<double>();
+        List<double> geneticValues = new List<double>();
 
         foreach (var matrix in timeMatrices)
         {
-            stopWatchTripleAlgorithm.Start();
-            (tripleObjectiveFunction, _) = TripleGreedy.Execute(matrix.Data);
-            stopWatchTripleAlgorithm.Stop();
-
-            stopWatchAvarageAlgorithm.Start();
-            (avarageObjectiveFunction, _) = TripleGreedy.GetAvarageObjectiveFunction(matrix.Data);
-            stopWatchAvarageAlgorithm.Stop();
+            double tripleObjectiveFunction = 0;
+            double avarageObjectiveFunction = 0;
+            double geneticObjectiveFunction = 0;
 
             GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(matrix.NumberOfPerformers, matrix.NumberOfPerformers, 0.2, 5, 20);
-
             ObjectiveFunction.SetData(matrix.Data);
 
-            stopWatchGeneticAlgorithm.Start();
-            geneticObjectiveFunction = geneticAlgorithm.ExecuteObj(true);
-            stopWatchGeneticAlgorithm.Stop();
+            matrix.FillWithRandomValues(meanValue, semiInterval);
 
-            intervalsTripleGreedy.Add(stopWatchTripleAlgorithm.ElapsedMilliseconds);
-            intervalsAvarageGreedy.Add(stopWatchAvarageAlgorithm.ElapsedMilliseconds);
-            intervalsGeneticAlgorithm.Add(stopWatchGeneticAlgorithm.ElapsedMilliseconds);
-
-            stopWatchTripleAlgorithm.Reset();
-            stopWatchAvarageAlgorithm.Reset();
-            stopWatchGeneticAlgorithm.Reset();
+            tripleObjectiveFunction += TripleGreedy.Execute(matrix.Data).Item1;
+            avarageObjectiveFunction += TripleGreedy.Execute(matrix.Data).Item1;
+            geneticObjectiveFunction += geneticAlgorithm.Execute(true).objFuncValue;
         }
 
-        ExcelWriter.OutputSizeToTimeComparison(intervalsTripleGreedy, intervalsAvarageGreedy, intervalsGeneticAlgorithm, matricesSizes.ToList(), "Розмір/Час");
+        ExcelWriter.OutputSizeToPrecisionComparison(tripleGreedyValues, avgGreedyValues, geneticValues, matricesSizes.ToList(), "Розмір/Точність");
     }
 
     public static void FillFileWithData()
@@ -228,6 +184,6 @@ public static class Experiment2
         matrices.Add(matrix1);
         matrices.Add(matrix2);
         matrices.Add(matrix3);
-        MatrixHelper.WriteListOfMatricesToFile(matrices, "experiment2testData.txt");
+        OutputHelper.WriteListOfMatricesToFile(matrices, "experiment3testData.txt");
     }
 }

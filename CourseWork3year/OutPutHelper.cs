@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CourseWork3year;
 
-public static class MatrixHelper
+public static class OutputHelper
 {
     public static void WriteListOfMatricesToFile(List<TimeMatrix> matrices, string fileName)
     {
@@ -38,5 +38,10 @@ public static class MatrixHelper
         {
             Console.WriteLine("An error occurred while writing to the file: " + ex.Message);
         }
+    }
+
+    public static string GetFormattedDistribution(int[] distribution)
+    {
+        return "[" + string.Join(", ", distribution) + "]";
     }
 }

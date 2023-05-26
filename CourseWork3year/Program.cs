@@ -1,97 +1,25 @@
-﻿using CourseWork3year;
+﻿using CourseWork3year.Experiments;
+using CourseWork3year.Individual;
 using System.Text;
 
 Console.OutputEncoding = Encoding.UTF8;
 
-//Console.WriteLine($"Експеримент {1}. Виберіть спосіб задання параметрів задачі:");
-
-//Console.WriteLine("1. Зчитати з файлу. Формат:\n\t1 рядок - це розмірність квадратної матриці," +
-//    "\n\t2 рядок - перелік значень математичного сподівання," +
-//    "\n\t3 рядок - перелік значень напівінтервалів");
-//Console.WriteLine("2. Ввести вручну");
-//Console.WriteLine("3. Генерувати випадковим чином");
-//Console.Write("Ваш вибір: ");
-
-int choice;
-
-//switch (choice)
-//{
-//    case 1:
-//        Console.Write("Введіть назву файлу: ");
-//        string fileName = Console.ReadLine();
-//        Experiment1.ReadFromFile(fileName);
-//        break;
-//    case 2:
-//        Experiment1.InputManually();
-//        break;
-//    case 3:
-//        Experiment1.SetInternally();
-//        break;
-//    default:
-//        Console.WriteLine("Некоректний вибір. Перезапустіть програму або перейдість до наступного експерименту");
-//        break;
-//}
-
-//Experiment1.Execute();
-//Experiment1.PrintResults();
-
-//Console.WriteLine($"\nЕксперимент {2}. Виберіть спосіб задання квадратної матриці часів:");
-
-//Console.WriteLine("1. Зчитати з файлу. Формат:\n\tРядок файлу - це рядок матриці" +
-//    "\n\tЕлементи матриці розділені пробілами \n\tЯкщо матриць декілька вони мають бути розділені пустим рядком");
-//Console.WriteLine("2. Ввести вручну");
-//Console.WriteLine("3. Генерувати випадковим чином");
-//Console.Write("Ваш вибір: ");
-
-//choice = int.Parse(Console.ReadLine());
-
-//switch (choice)
-//{
-//    case 1:
-//        Console.Write("Введіть назву файлу: ");
-//        string fileName = Console.ReadLine();
-//        Experiment2.ReadFromFile(fileName);
-//        break;
-//    case 2:
-//        Experiment2.InputManually();
-//        break;
-//    case 3:
-//        Experiment2.Generate();
-//        break;
-//    default:
-//        Console.WriteLine("Некоректний вибір. Перезапустіть програму або перейдість до наступного експерименту");
-//        break;
-//}
-
-//Experiment2.Execute();
-
-Console.WriteLine($"\nЕксперимент {3}. Виберіть спосіб задання квадратної матриці часів:");
-
-Console.WriteLine("1. Зчитати з файлу. Формат:\n\tРядок файлу - це рядок матриці" +
-    "\n\tЕлементи матриці розділені пробілами \n\tЯкщо матриць декілька вони мають бути розділені пустим рядком");
-Console.WriteLine("2. Ввести вручну");
-Console.WriteLine("3. Генерувати випадковим чином");
+Console.WriteLine("Виберіть режим роботи з програмою:");
+Console.WriteLine("1. Розв'язок індивідуальнох задачі");
+Console.WriteLine("2. Проведення експериментів");
 Console.Write("Ваш вибір: ");
 
-choice = int.Parse(Console.ReadLine());
+int mode = int.Parse(Console.ReadLine());
 
-switch (choice)
+switch (mode)
 {
-    case 1:
-        Console.Write("Введіть назву файлу: ");
-        string fileName = Console.ReadLine();
-        Experiment3.ReadFromFile(fileName);
-        break;
-    case 2:
-        Experiment3.InputManually();
-        break;
-    case 3:
-        Experiment3.Generate();
-        break;
-    default:
-        Console.WriteLine("Некоректний вибір. Перезапустіть програму");
-        break;
+	case 1:
+        IndividualTaskMode.Start();
+		break;
+	case 2:
+		ExperimentMode.Start();
+		break;
+	default:
+		break;
 }
-
-Experiment3.Execute();
 
