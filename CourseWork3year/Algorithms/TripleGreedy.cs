@@ -35,6 +35,10 @@ namespace CourseWork3year
             List<int> nearestValues = new List<int>();
             int dimension = matrix.GetLength(0);
 
+            List<int> distribution = new List<int>();
+
+            List<int> columnIndices = Enumerable.Range(0, dimension).ToList();
+
             while (dimension > 0)
             {
                 // Calculate average
@@ -72,19 +76,25 @@ namespace CourseWork3year
 
                 nearestValues.Add(nearestValue);
 
+                distribution.Add(columnIndices[columnToRemove]+1);
+                columnIndices.RemoveAt(columnToRemove);
+
                 matrix = ReduceMatrix(matrix, rowToRemove, columnToRemove);
                 dimension--;
             }
 
-            return (nearestValues.Max() - nearestValues.Min(), nearestValues);
+            return (nearestValues.Max() - nearestValues.Min(), distribution);
         }
 
         private static (int, List<int>) GetMinimumObjectiveFunction(int[,] oldMatrix)
         {
             int[,] matrix = oldMatrix.Clone() as int[,];
+            List<int> distribution = new List<int>();
 
             List<int> minimumValues = new List<int>();
             int dimension = matrix.GetLength(0);
+
+            List<int> columnIndices = Enumerable.Range(0, dimension).ToList();
 
             while (dimension > 0)
             {
@@ -107,20 +117,25 @@ namespace CourseWork3year
                 }
 
                 minimumValues.Add(minValue);
+                distribution.Add(columnIndices[columnToRemove]+1);
+                columnIndices.RemoveAt(columnToRemove);
 
                 matrix = ReduceMatrix(matrix, rowToRemove, columnToRemove);
                 dimension--;
             }
 
-            return (minimumValues.Max() - minimumValues.Min(), minimumValues);
+            return (minimumValues.Max() - minimumValues.Min(), distribution);
         }
 
         private static (int, List<int>) GetMaximumObjectiveFunction(int[,] oldMatrix)
         {
+            List<int> distribution = new List<int>();
             int[,] matrix = oldMatrix.Clone() as int[,];
 
             List<int> maximumValues = new List<int>();
             int dimension = matrix.GetLength(0);
+
+            List<int> columnIndices = Enumerable.Range(0, dimension).ToList();
 
             while (dimension > 0)
             {
@@ -143,12 +158,14 @@ namespace CourseWork3year
                 }
 
                 maximumValues.Add(maxValue);
+                distribution.Add(columnIndices[columnToRemove]+1);
+                columnIndices.RemoveAt(columnToRemove);
 
                 matrix = ReduceMatrix(matrix, rowToRemove, columnToRemove);
                 dimension--;
             }
 
-            return (maximumValues.Max() - maximumValues.Min(), maximumValues);
+            return (maximumValues.Max() - maximumValues.Min(), distribution);
         }
 
         // Create new matrix without row and column of the maximum value
