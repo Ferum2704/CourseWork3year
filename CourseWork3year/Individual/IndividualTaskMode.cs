@@ -103,7 +103,7 @@ public static class IndividualTaskMode
         individualMatrix.FillWithRandomValues(meanValue, semiInterval);
 
         Console.WriteLine("\nЗгенерована матриця: ");
-        individualMatrix.Print();
+/*        individualMatrix.Print();*/
     }
 
     private static void Solve()
